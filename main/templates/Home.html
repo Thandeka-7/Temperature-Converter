@@ -1,0 +1,549 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #7e22ce 50%, #ec4899 75%, #f97316 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* Animated Background Circles */
+        .bg-decoration {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            background: white;
+            top: -150px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+
+        .circle-2 {
+            width: 200px;
+            height: 200px;
+            background: white;
+            bottom: -100px;
+            right: -100px;
+            animation-delay: 3s;
+        }
+
+        .circle-3 {
+            width: 150px;
+            height: 150px;
+            background: white;
+            top: 50%;
+            right: -75px;
+            animation-delay: 6s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-30px) scale(1.1);
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Decorative corner elements */
+        .container::before,
+        .container::after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #667eea;
+        }
+
+        .container::before {
+            top: -3px;
+            left: -3px;
+            border-right: none;
+            border-bottom: none;
+            border-radius: 20px 0 0 0;
+        }
+
+        .container::after {
+            bottom: -3px;
+            right: -3px;
+            border-left: none;
+            border-top: none;
+            border-radius: 0 0 20px 0;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        /* Decorative line under title */
+        .title-decoration {
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+            margin: 0 auto 30px;
+            border-radius: 2px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        /* Icon decorations for labels */
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.05em;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        label::before {
+            content: '●';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-size: 1.2em;
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                text-shadow: 0 0 5px #667eea;
+            }
+            50% {
+                text-shadow: 0 0 15px #667eea, 0 0 20px #667eea;
+            }
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: scale(1.02);
+        }
+
+        .converter-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .converter-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .arrow {
+            color: #667eea;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 25px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(5px);
+            }
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated shimmer effect */
+        .result-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+            100% {
+                left: 100%;
+            }
+        }
+
+        .result-box label {
+            color: white;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .result-box label::before {
+            content: '✨';
+            margin-right: 5px;
+        }
+
+        .result-box input {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            font-size: 1.3em;
+            font-weight: bold;
+            text-align: center;
+            border: none;
+            position: relative;
+            z-index: 1;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-convert {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-convert::after {
+            content: '→';
+            margin-left: 8px;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .btn-convert:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-convert:hover::after {
+            transform: translateX(5px);
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-clear::after {
+            content: '×';
+            margin-left: 8px;
+            font-size: 1.3em;
+            display: inline-block;
+            transition: transform 0.3s;
+        }
+
+        .btn-clear:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+        }
+
+        .btn-clear:hover::after {
+            transform: rotate(90deg);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .success-message {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: slideDown 0.5s ease;
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+            border-left: 4px solid #2e7d32;
+        }
+
+        .success-message::before {
+            content: '✓';
+            margin-right: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Floating thermometer decorations */
+        .thermometer-icon {
+            position: absolute;
+            font-size: 2em;
+            opacity: 0.1;
+            animation: floatThermometer 15s infinite ease-in-out;
+        }
+
+        .thermo-1 {
+            top: 20px;
+            right: 20px;
+            animation-delay: 0s;
+        }
+
+        .thermo-2 {
+            bottom: 20px;
+            left: 20px;
+            animation-delay: 5s;
+        }
+
+        @keyframes floatThermometer {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-10px) rotate(5deg);
+            }
+            75% {
+                transform: translateY(10px) rotate(-5deg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .converter-row {
+                flex-direction: column;
+            }
+
+            .arrow {
+                transform: rotate(90deg);
+                margin: 10px 0;
+            }
+
+            .bg-decoration {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background Decorations -->
+    <div class="bg-decoration circle-1"></div>
+    <div class="bg-decoration circle-2"></div>
+    <div class="bg-decoration circle-3"></div>
+
+    <div class="container">
+        <!-- Floating Thermometer Icons -->
+        <div class="thermometer-icon thermo-1">🌡️</div>
+        <div class="thermometer-icon thermo-2">🌡️</div>
+
+        <h1>🌡️ Temperature Converter</h1>
+        <div class="title-decoration"></div>
+        
+        {% if result %}
+        <div class="success-message">
+            Conversion successful!
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'temperature_converter' %}">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="numInput">Enter Temperature:</label>
+                <input 
+                    type="number" 
+                    id="numInput" 
+                    name="numInput" 
+                    step="0.01"
+                    placeholder="Enter degrees..." 
+                    required
+                    value="{{ input_temp|default:'' }}"
+                >
+            </div>
+
+            <div class="converter-row">
+                <div class="form-group">
+                    <label for="input_type">From:</label>
+                    <select id="input_type" name="input_type" required>
+                        <option value="Celsius">Celsius (°C)</option>
+                        <option value="Fahrenheit">Fahrenheit (°F)</option>
+                        <option value="Kelvin">Kelvin (K)</option>
+                    </select>
+                </div>
+
+                <div class="arrow">→</div>
+
+                <div class="form-group">
+                    <label for="output_type">To:</label>
+                    <select id="output_type" name="output_type" required>
+                        <option value="Fahrenheit">Fahrenheit (°F)</option>
+                        <option value="Celsius">Celsius (°C)</option>
+                        <option value="Kelvin">Kelvin (K)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="result-box">
+                <label for="Results">Result:</label>
+                <input 
+                    type="text" 
+                    id="Results" 
+                    name="Results" 
+                    readonly 
+                    placeholder="---"
+                    value="{% if result %}{{ result }} {{ output_unit }}{% endif %}"
+                >
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="btn-convert"><span>Convert</span></button>
+                <button type="reset" class="btn-clear" onclick="window.location.href='{% url 'temperature_converter' %};'"><span>Clear</span></button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
